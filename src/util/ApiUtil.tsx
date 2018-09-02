@@ -1,5 +1,6 @@
 import { DataResource } from "../entity/DataResource";
-import { chromeStorage } from "./ChromeStorage";
+import { ChromeStorage, chromeStorage } from "./ChromeStorage";
+import { message } from "antd";
 
 export enum HostOption {
     Region = 'region',
@@ -20,17 +21,42 @@ export class ApiUtil {
                 value: realm.slug
             })))
             .then(realms => {
-                chromeStorage.setItems({ realms });
+                chromeStorage.setItems({ realms }, ChromeStorage.localStorage);
             });
+    }
+
+    static getItemData(itemId) {
+        return ApiUtil.requestEndpoint(`wow/item/${itemId}`, { hostOption: HostOption.Language})
+            .then(console.log);
     }
 
     static getAuction() {
         return ApiUtil.requestEndpoint('wow/auction/data', { hostOption: HostOption.Region, useRealm: true })
-            .then(json => json.files[0].url)
-            .then(url =>
-                fetch(url)
-                    .then(res => res.json())
-                    .then(console.log)
+            .then(json => json.files[0])
+            .then(file => {
+                    const { auctionData } = chromeStorage.getItems();
+                    if (auctionData.lastModified != file.lastModified) {
+                        chromeStorage.setItems({
+                            auctionData: {
+                                data: file.url,
+                                lastModified: file.lastModified
+                            }
+                        }, ChromeStorage.localStorage);
+                        return true;
+                        // fetch(file.url)
+                        //     .then(res => res.json())
+                        //     .then(auctionData => {
+                        //         chromeStorage.setItems({
+                        //             auctionData: {
+                        //                 data: auctionData,
+                        //                 lastModified: file.lastModified
+                        //             }
+                        //         }, ChromeStorage.localStorage);
+                        //     });
+                    } else {
+                        return false
+                    }
+                }
             );
     }
 
@@ -38,9 +64,13 @@ export class ApiUtil {
         const { hostOption, useRealm } = option;
         const { locale, apiKey, realm, region } = chromeStorage.getItems();
         if (apiKey === "") {
-            return Promise.reject(new Error("API key is not set."));
+            const err = "API key is not set.";
+            message.error(err);
+            return Promise.reject(new Error(err));
         } else if (useRealm && realm === "") {
-            return Promise.reject(new Error("Realm is not set."));
+            const err = "Realm is not set.";
+            message.error(err)
+            return Promise.reject(new Error(err));
         }
         const host = hostOption === HostOption.Language ? DataResource.getHost(locale) : region;
         const link: string = ApiUtil.makeUrlWithQueryParams(`${host}${endpoint}${useRealm ? `/${realm}` : ''}`, {
@@ -51,11 +81,19 @@ export class ApiUtil {
         return fetch(link)
             .then(res => {
                 switch (res.status) {
-                    case 200: return res.json();
-                    case 403: return Promise.reject(new Error('Invalid Api Key.'));
-                    case 404: return Promise.reject(new Error('Requested data not found.'));
-                    default: return Promise.reject(new Error('Api Request Failed.'));
+                    case 200:
+                        return res.json();
+                    case 403:
+                        return Promise.reject(new Error('Invalid Api Key.'));
+                    case 404:
+                        return Promise.reject(new Error('Requested data not found.'));
+                    default:
+                        return Promise.reject(new Error('Api Request Failed.'));
                 }
+            })
+            .catch((err) => {
+                console.log(err);
+                message.error(err.message);
             });
     }
 

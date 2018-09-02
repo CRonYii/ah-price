@@ -1,6 +1,7 @@
 import { Form, message, Select } from 'antd';
 import * as React from 'react';
 import { connectStorage } from '../util/ChromeStorageContext';
+import { ChromeStorage } from "../util/ChromeStorage";
 
 export interface Realm {
     name: string,

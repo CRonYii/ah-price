@@ -11,7 +11,7 @@
   "license": "",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CRonYii/ah-price.git"
+    "url": "https://github.com/CRonYii/ry-wow.git"
   },
   "dependencies": {
     "antd": "^3.8.1",

@@ -6,12 +6,19 @@ import { RegionSelect } from './component/RegionSelect';
 import { chromeStorage } from './util/ChromeStorage';
 import { ChromeStorageProvider, ChromeStorageProviderProps, connectStorage } from './util/ChromeStorageContext';
 import { RealmSelect } from './component/RealmSelect';
+import { Button, message } from "antd";
+import { ApiUtil } from "./util/ApiUtil";
 
 export interface OptionsProps {
-    realms?: any
+    clearStorage: () => void
 }
 
 class Options extends React.Component<OptionsProps> {
+
+    scanAuction = () => ApiUtil.getAuction()
+        .then((updated) => updated ?
+            message.success('Auction scanned finished!') :
+            message.info('Auction data is already up to date.'));
 
     render() {
         return <div>
@@ -19,14 +26,25 @@ class Options extends React.Component<OptionsProps> {
             <LocaleSelect />
             <RegionSelect />
             <RealmSelect />
+            <Button type="primary" onClick={this.scanAuction}>Scan Auction</Button>
+            <Button type="danger" onClick={this.props.clearStorage}>Clear Storage</Button>
         </div>
     }
 
 }
 
+export const OptionsPage = connectStorage((storage) => ({
+    clearStorage: () => {
+        storage.clearAllStorage()
+            .then(() => {
+                window.location.reload();
+            });
+    }
+}))(Options);
+
 ReactDom.render(
     <ChromeStorageProvider storage={chromeStorage}>
-        <Options />
+        <OptionsPage />
     </ChromeStorageProvider>,
     document.querySelector('div#root')
 );

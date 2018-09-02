@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Input } from 'antd';
+import { ApiUtil } from "../util/ApiUtil";
 
 export class ItemSearch extends React.Component {
 
     onItemSerch = (id) => {
         window.open(`https://theunderminejournal.com/#us/illidan/item/${id}`);
-    }
+    };
 
     render() {
         return <Input.Search placeholder="Enter Item ID"
