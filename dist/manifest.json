@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "wow-gogo",
-  "description": "Assistant for wow",
+  "name": "ry-wow",
+  "description": "Assistant for WOW Data Searching",
   "version": "1.0",
   "options_ui": {
     "page": "options.html",

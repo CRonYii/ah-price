@@ -1,7 +1,7 @@
 {
-  "name": "ah-price",
+  "name": "ry-wow",
   "version": "1.0.0",
-  "description": "Assistant for wow auction price searhing",
+  "description": "Assistant for WOW data searching",
   "main": "index.js",
   "scripts": {
     "watch": "webpack --config webpack/webpack.dev.js --watch",
