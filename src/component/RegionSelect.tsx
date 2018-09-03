@@ -41,6 +41,7 @@ export const RegionSelect = connectStorage((storage, items) => ({
                 message.success(`Region changed successfully`);
                 ApiUtil.getRealmList()
                     .then(() => {
+                        storage.setItems({ realm: '' });
                         message.success('Updated Realms List!');
                     });
             });

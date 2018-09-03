@@ -1,7 +1,8 @@
-import { ApiLocale, Host } from "../entity/DataResource";
+import { ApiLocale, Host, AuctionData } from "../entity/DataResource";
 import { Realm } from "../component/RealmSelect";
 import StorageArea = chrome.storage.StorageArea;
-import { AuctionData } from "../entity/AuctionData";
+import { message } from 'antd';
+import { UIData } from "../entity/UIData";
 
 export interface StorageMember {
     apiKey?: string,
@@ -9,7 +10,8 @@ export interface StorageMember {
     region?: Host,
     realm?: string,
     realms?: Array<Realm>,
-    auctionData?: AuctionData
+    auctionData?: AuctionData,
+    uiData?: UIData,
 }
 
 export class Storage {
@@ -20,6 +22,7 @@ export class Storage {
     public realm = "";
     public realms = [];
     public auctionData: AuctionData = new AuctionData();
+    public uiData: UIData = new UIData();
 
     setItems(items: StorageMember) {
         for (let key in items) {
@@ -33,6 +36,7 @@ export class ChromeStorage {
 
     public static readonly localStorage: StorageArea = chrome.storage.local;
     public static readonly syncStorage: StorageArea = chrome.storage.sync;
+    public static readonly runtimeStorage: StorageArea = null;
 
     private storage: Storage = new Storage();
     private numSubscribes: number = 0;
@@ -84,15 +88,20 @@ export class ChromeStorage {
         this.subscriberMap.forEach((subscriber) => {
             subscriber(this);
         });
-        return new Promise((resolve, reject) => {
-            storageArea.set(items, () => {
-                const error = chrome.runtime.lastError;
-                if (error) {
-                    reject({ items, error });
-                }
-                resolve();
-            })
-        });
+        if (storageArea === ChromeStorage.runtimeStorage) {
+            return Promise.resolve('');
+        } else {
+                return new Promise((resolve, reject) => {
+                    storageArea.set(items, () => {
+                        const error = chrome.runtime.lastError;
+                        if (error) {
+                            message.error('Unable to save data to chrome storage. ');
+                            reject({ items, error });
+                        }
+                        resolve();
+                    })
+                });
+        }
     };
 
     public getItems = () => {

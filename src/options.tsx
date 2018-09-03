@@ -8,6 +8,8 @@ import { ChromeStorageProvider, ChromeStorageProviderProps, connectStorage } fro
 import { RealmSelect } from './component/RealmSelect';
 import { Button, message } from "antd";
 import { ApiUtil } from "./util/ApiUtil";
+import { TaskProgress } from './component/TaskProgress';
+import { ExtensionDatabase } from './db/ExtensionDatabase';
 
 export interface OptionsProps {
     clearStorage: () => void
@@ -28,6 +30,7 @@ class Options extends React.Component<OptionsProps> {
             <RealmSelect />
             <Button type="primary" onClick={this.scanAuction}>Scan Auction</Button>
             <Button type="danger" onClick={this.props.clearStorage}>Clear Storage</Button>
+            <TaskProgress />
         </div>
     }
 

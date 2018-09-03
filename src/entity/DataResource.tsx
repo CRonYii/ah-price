@@ -35,3 +35,9 @@ export class DataResource {
         }
     }
 }
+
+export class AuctionData {
+    url: string = '';
+    lastModified: number = 0;
+    realm: string = '';
+}
